@@ -1,0 +1,14 @@
+# IntelliJ / IDE
+.idea/
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# Docker / volumes
+**/data/
+**/*.sock
