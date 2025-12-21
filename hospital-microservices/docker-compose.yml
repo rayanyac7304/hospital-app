@@ -2,6 +2,26 @@ version: "3.9"
 
 services:
   # =========================
+  # Base de données AUTH
+  # =========================
+  auth-db:
+    image: mysql:8.4
+    container_name: auth-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hospital_auth
+      MYSQL_USER: hospital
+      MYSQL_PASSWORD: hospital
+    ports:
+      - "3311:3306"
+    volumes:
+      - ./db/auth/data:/var/lib/mysql
+      - ./db/auth/init:/docker-entrypoint-initdb.d
+    networks:
+      - hospital-net
+
+  # =========================
   # Base de données PATIENTS
   # =========================
   patients-db:

@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
-<div class="main-content">
+<app-navbar *ngIf="!hideNavbar"></app-navbar>
+<div class="main-content" [class.no-navbar]="hideNavbar">
   <router-outlet></router-outlet>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-account-delete',
@@ -9,40 +10,49 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
   templateUrl: './account-delete.html',
   styleUrls: ['./account-delete.css']
 })
-export class AccountDeletePage implements OnInit {
-  accountId: string | null = null;
+export class AccountDeleteComponent implements OnInit {
+
+  userId!: number;
   username: string = '';
+
+  private apiUrl = 'http://localhost:8087/api/auth';
 
   constructor(
     private route: ActivatedRoute,
+    private http: HttpClient,
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.accountId = this.route.snapshot.paramMap.get('id');
-    this.loadAccountInfo();
-  }
-
-  loadAccountInfo() {
-    // Test data - replace with actual API call
-    const testUsers: any = {
-      '1': { username: 'admin@clinic.com' },
-      '2': { username: 'dr.smith' },
-      '3': { username: 'nurse.jones' },
-      '4': { username: 'receptionist01' },
-      '5': { username: 'dr.williams' },
-      '6': { username: 'admin.support' },
-      '7': { username: 'nurse.martin' }
-    };
-
-    if (this.accountId && testUsers[this.accountId]) {
-      this.username = testUsers[this.accountId].username;
+  ngOnInit(): void {
+    const role = localStorage.getItem('role');
+    if (role !== 'ADMIN') {
+      this.router.navigate(['/']);
+      return;
     }
+
+    // Get id & username from route
+    this.userId = Number(this.route.snapshot.paramMap.get('id'));
+    this.username = this.route.snapshot.queryParamMap.get('username') || '';
   }
 
-  confirmDelete() {
-    console.log('Deleting account:', this.accountId);
-    // Add your delete logic here
-    this.router.navigate(['/accounts']);
+  confirmDelete(): void {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.delete<{ message: string }>(
+      `${this.apiUrl}/users/${this.userId}`,
+      { headers }
+    ).subscribe({
+      next: () => {
+        alert('Compte supprimé avec succès');
+        this.router.navigate(['/accounts']);
+      },
+      error: (error) => {
+        console.error('Erreur suppression:', error);
+        alert('Erreur lors de la suppression');
+      }
+    });
   }
 }

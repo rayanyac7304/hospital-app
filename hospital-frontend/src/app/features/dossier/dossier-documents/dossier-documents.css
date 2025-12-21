@@ -2,8 +2,8 @@ h2 {
   text-align: center;
   margin-bottom: 20px;
   font-size: 26px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .documents-container {
@@ -15,46 +15,55 @@ h2 {
 .upload-section, .documents-list {
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
 }
 
 h3 {
   margin-top: 0;
-  color: #333;
+  color: #1f2937;
+  font-weight: 600;
 }
 
 .btn-primary {
-  background: #007bff;
+  background: #3727e3;
   color: white;
   padding: 10px 18px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
   margin-top: 10px;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #0056b3;
+  background: #2919c9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(55, 39, 227, 0.3);
 }
 
 .btn-back {
-  background: #6c757d;
-  color: white;
+  background: #f3f4f6;
+  color: #6b7280;
   padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .btn-back:hover {
-  background: #5a6268;
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .empty-message {
-  color: #999;
+  color: #9ca3af;
   font-style: italic;
 }

@@ -1,17 +1,26 @@
 package ma.you.hospital.patients.domain;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.*;
 
 @Entity
 @Table(name = "patients", indexes = {
-        @Index(name = "idx_patients_lastname", columnList = "lastName"),
-        @Index(name = "idx_patients_email", columnList = "email", unique = true)
+        @Index(name = "idx_patients_lastname", columnList = "lastName")
 })
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;   // 🔗 REQUIRED login
 
     @Column(nullable = false, length = 60)
     private String firstName;
@@ -24,9 +33,6 @@ public class Patient {
     private Gender gender;
 
     private LocalDate birthDate;
-
-    @Column(unique = true, length = 120)
-    private String email;
 
     @Column(length = 30)
     private String phone;
@@ -48,7 +54,7 @@ public class Patient {
         updatedAt = Instant.now();
     }
 
-    // Getters/Setters
+    /*
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getFirstName() { return firstName; }
@@ -68,5 +74,5 @@ public class Patient {
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }*/
 }

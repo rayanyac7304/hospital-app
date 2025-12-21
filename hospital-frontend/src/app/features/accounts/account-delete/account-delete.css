@@ -2,8 +2,8 @@ h2 {
   text-align: center;
   margin-bottom: 30px;
   font-size: 26px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .delete-container {
@@ -15,22 +15,23 @@ h2 {
 .warning-card {
   background: #fff;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  border-left: 4px solid #d9534f;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #dc2626;
 }
 
 .warning-text {
   margin: 0 0 10px 0;
   font-size: 18px;
-  color: #333;
+  color: #1f2937;
   font-weight: 500;
 }
 
 .warning-subtext {
   margin: 0;
-  color: #d9534f;
+  color: #dc2626;
   font-size: 14px;
 }
 
@@ -41,29 +42,34 @@ h2 {
 }
 
 .btn-danger {
-  background: #d9534f;
+  background: #dc2626;
   color: white;
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 .btn-danger:hover {
-  background: #b52b27;
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .btn-cancel {
-  background: #6c757d;
-  color: white;
+  background: #f3f4f6;
+  color: #6b7280;
   padding: 12px 24px;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 .btn-cancel:hover {
-  background: #5a6268;
+  background: #e5e7eb;
+  color: #374151;
 }

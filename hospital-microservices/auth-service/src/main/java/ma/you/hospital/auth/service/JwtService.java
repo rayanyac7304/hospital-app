@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import ma.you.hospital.auth.domain.User;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
         claims.put("email", user.getEmail());
+        claims.put("userId", user.getId());
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtExpirationMs);
@@ -47,10 +49,11 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
-    public boolean isTokenValid(String token, User user) {
-        String username = extractUsername(token);
-        return username.equals(user.getUsername()) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, String username) {
+        final String extractedUsername = extractUsername(token);
+        return extractedUsername.equals(username) && !isTokenExpired(token);
     }
+
 
     private boolean isTokenExpired(String token) {
         Date expiration = extractAllClaims(token).getExpiration();
@@ -64,4 +67,6 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+
 }

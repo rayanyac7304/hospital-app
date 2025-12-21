@@ -6,30 +6,33 @@ const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./admin-list/admin-list')
-        .then(m => m.AdminListPage)
+        .then(m => m.AdminListComponent)
   },
-{
-  path: 'login',
-  loadComponent: () =>
-    import('./login/login')
-      .then(m => m.LoginPage)},
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./login/login')
+        .then(m => m.LoginPage)
+  },
   {
     path: 'create',
     loadComponent: () =>
       import('./account-create/account-create')
-        .then(m => m.AccountCreatePage)
+        .then(m => m.AccountCreateComponent)
   },
-  {
+
+{
     path: 'edit/:id',
     loadComponent: () =>
       import('./account-edit/account-edit')
         .then(m => m.AccountEditPage)
   },
+
   {
     path: 'delete/:id',
     loadComponent: () =>
       import('./account-delete/account-delete')
-        .then(m => m.AccountDeletePage)
+        .then(m => m.AccountDeleteComponent)
   }
 ];
 

@@ -2,8 +2,8 @@ h2 {
   text-align: center;
   margin-bottom: 30px;
   font-size: 26px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .detail-container {
@@ -14,13 +14,14 @@ h2 {
 
 .detail-card {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
 
 .detail-header {
-  background: #007bff;
+  background: #3727e3;
   color: white;
   padding: 20px;
   display: flex;
@@ -35,9 +36,9 @@ h2 {
 }
 
 .patient-id {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   padding: 4px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
 }
 
@@ -48,7 +49,7 @@ h2 {
 .detail-row {
   display: flex;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .detail-row:last-child {
@@ -58,67 +59,75 @@ h2 {
 .label {
   flex: 0 0 180px;
   font-weight: 600;
-  color: #555;
+  color: #6b7280;
   font-size: 14px;
 }
 
 .value {
   flex: 1;
-  color: #333;
+  color: #1f2937;
   font-size: 14px;
 }
 
 .detail-actions {
   padding: 20px;
-  background: #f8f9fa;
+  background: #f9fafb;
   display: flex;
   gap: 12px;
   justify-content: center;
+  border-top: 1px solid #e5e7eb;
 }
 
 .btn-primary {
-  background: #007bff;
+  background: #3727e3;
   color: white;
   padding: 10px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #0056b3;
+  background: #2919c9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(55, 39, 227, 0.3);
 }
 
 .btn-cancel {
-  background: #6c757d;
-  color: white;
+  background: #f3f4f6;
+  color: #6b7280;
   padding: 10px 24px;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .btn-cancel:hover {
-  background: #5a6268;
+  background: #e5e7eb;
+  color: #374151;
 }
+
 .loading-message {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: #6b7280;
   font-size: 16px;
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fee2e2;
+  color: #991b1b;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   text-align: center;
   margin: 20px 0;
+  border: 1px solid #fecaca;
 }
 
 .btn-danger:disabled,

@@ -5,11 +5,11 @@ import java.time.*;
 
 public record PatientResponse(
         Long id,
+        Long userId,
         String firstName,
         String lastName,
         Gender gender,
         LocalDate birthDate,
-        String email,
         String phone,
         String address,
         Instant createdAt,

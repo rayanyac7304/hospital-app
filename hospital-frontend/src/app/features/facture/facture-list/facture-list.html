@@ -6,6 +6,19 @@
   </button>
 </div>
 
+<!-- Search and Filter Section -->
+<div class="search-container">
+  <input
+    type="text"
+    placeholder="Rechercher par nom de patient ou médecin..."
+    class="search-input"
+  />
+  <input
+    type="date"
+    class="date-input"
+  />
+</div>
+
 <div class="list-container">
   <!-- Empty state -->
   <div *ngIf="factures.length === 0" class="empty-message">

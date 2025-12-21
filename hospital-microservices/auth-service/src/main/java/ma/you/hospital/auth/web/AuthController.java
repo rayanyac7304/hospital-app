@@ -8,6 +8,10 @@ import ma.you.hospital.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")  // à adapter selon ton besoin
@@ -27,7 +31,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
-}
+
+    @GetMapping("/users")
+    public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
+        List<Map<String, Object>> users = authService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+        authService.deleteUser(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Compte supprimé avec succès");
+        return ResponseEntity.ok(response);
+    }
+    }
+

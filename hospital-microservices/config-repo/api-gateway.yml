@@ -7,16 +7,25 @@ spring:
       server:
         webflux:
           routes:
-            # 1) PATIENTS
+
+            # 1) AUTH (LOGIN / REGISTER)
+            - id: auth-route
+              uri: lb://AUTH-SERVICE
+              predicates:
+                - Path=/auth/**
+              filters:
+                # /auth/login -> /api/auth/login
+                - RewritePath=/auth/?(?<segment>.*), /api/auth/${segment}
+
+            # 2) PATIENTS
             - id: patients-route
               uri: lb://PATIENTS-SERVICE
               predicates:
-                - Path=/patients/**              # ce que le client appelle
+                - Path=/patients/**
               filters:
-                # /patients/1  ->  /api/patients/1 vers le microservice
                 - RewritePath=/patients/?(?<segment>.*), /api/patients/${segment}
 
-            # 2) DOCTORS
+            # 3) DOCTORS
             - id: doctors-route
               uri: lb://DOCTORS-SERVICE
               predicates:
@@ -24,7 +33,7 @@ spring:
               filters:
                 - RewritePath=/doctors/?(?<segment>.*), /api/doctors/${segment}
 
-            # 3) APPOINTMENTS
+            # 4) APPOINTMENTS
             - id: appointments-route
               uri: lb://APPOINTMENTS-SERVICE
               predicates:
@@ -32,7 +41,7 @@ spring:
               filters:
                 - RewritePath=/appointments/?(?<segment>.*), /appointments/${segment}
 
-            # 4) BILLING
+            # 5) BILLING
             - id: billing-route
               uri: lb://BILLING-SERVICE
               predicates:

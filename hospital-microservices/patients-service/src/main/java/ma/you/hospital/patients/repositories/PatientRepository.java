@@ -8,13 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-    @Query("""
-      SELECT p FROM Patient p
-      WHERE (:q IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
-                     OR LOWER(p.lastName)  LIKE LOWER(CONCAT('%', :q, '%'))
-                     OR LOWER(p.email)     LIKE LOWER(CONCAT('%', :q, '%')))
-      """)
+    @Query("SELECT p FROM Patient p " +
+            "WHERE (:q IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :q, '%')) " +
+            "OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Patient> search(String q, Pageable pageable);
 
-    boolean existsByEmail(String email);
+
 }

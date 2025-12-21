@@ -4,8 +4,15 @@ export const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'patient',
+    redirectTo: 'login',
     pathMatch: 'full'
+  },
+
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/login/login')
+        .then(m => m.LoginComponent)
   },
 
   {
@@ -42,5 +49,6 @@ export const routes: Routes = [
       import('./features/dossier/dossier-routing-module')
         .then(m => m.DossierRoutingModule)
   },
+
 
 ];

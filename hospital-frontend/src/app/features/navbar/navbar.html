@@ -1,14 +1,18 @@
 <nav class="navbar">
   <div class="navbar-brand">
-    <h2>Medical Practice</h2>
+    <h2>Portail Médical</h2>
   </div>
 
   <ul class="navbar-menu">
+    <!-- Show "Comptes" for admin, "Compte" for patient/doctor at different positions -->
+    @if (role === 'admin') {
     <li>
       <a routerLink="/accounts" routerLinkActive="active">
-        Accounts
+        Comptes
       </a>
     </li>
+    }
+
     <li>
       <a routerLink="/patient" routerLinkActive="active">
         Patients
@@ -29,5 +33,14 @@
         Dossiers
       </a>
     </li>
+
+    <!-- Show "Compte" at the end for patient/doctor -->
+    @if (role === 'patient' || role === 'doctor') {
+    <li>
+      <a routerLink="/account" routerLinkActive="active">
+        Compte
+      </a>
+    </li>
+    }
   </ul>
 </nav>

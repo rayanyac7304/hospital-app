@@ -1,31 +1,42 @@
-<h2>Comptes Utilisateurs</h2>
+<div class="page-container">
+  <h2>Comptes Utilisateurs</h2>
 
-<div class="actions">
-  <button routerLink="/accounts/create" class="btn-primary">
-    Créer un compte
-  </button>
-</div>
-
-<div class="list-container">
-  <!-- Empty state -->
-  <div *ngIf="accounts.length === 0" class="empty-message">
-    Aucun compte disponible.
+  <div class="actions">
+    <button routerLink="/accounts/create" class="btn-primary">
+      + Créer un compte
+    </button>
   </div>
 
-  <!-- Account cards -->
-  <div class="list-item" *ngFor="let acc of accounts">
-    <div class="info">
-      <h3>{{ acc.username }}</h3>
-      <p>Rôle : {{ acc.role }}</p>
+  <div class="search-container">
+    <input
+      type="text"
+      placeholder="Rechercher par nom d'utilisateur ou email..."
+      class="search-input"
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  <div class="list-container">
+    <div *ngIf="filteredAccounts.length === 0" class="empty-message">
+      Aucun compte disponible.
     </div>
 
-    <div class="item-actions">
-      <button [routerLink]="['/accounts/edit', acc.id]" class="btn-primary">
-        Modifier
-      </button>
-      <button [routerLink]="['/accounts/delete', acc.id]" class="btn-danger">
-        Supprimer
-      </button>
+    <div class="list-item" *ngFor="let acc of filteredAccounts">
+      <div class="info">
+        <h3>{{ acc.username }}</h3>
+        <p class="email">{{ acc.email }}</p>
+        <p class="role">Rôle : {{ getRoleLabel(acc.role) }}</p>
+      </div>
+
+      <div class="item-actions">
+        <button
+          class="btn-danger"
+          [routerLink]="['/accounts/delete', acc.id]"
+          [queryParams]="{ username: acc.username }">
+          Supprimer
+        </button>
+
+      </div>
     </div>
   </div>
 </div>

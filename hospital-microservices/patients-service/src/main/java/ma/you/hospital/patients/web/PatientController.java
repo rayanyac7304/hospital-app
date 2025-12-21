@@ -1,4 +1,6 @@
 package ma.you.hospital.patients.web;
+import ma.you.hospital.patients.domain.Gender;
+import ma.you.hospital.patients.domain.Patient;
 import ma.you.hospital.patients.services.PatientService;
 import ma.you.hospital.patients.web.dto.PatientRequest;
 import ma.you.hospital.patients.web.dto.PatientResponse;
@@ -6,6 +8,8 @@ import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -38,7 +42,7 @@ public class PatientController {
 
     @PostMapping
     public ResponseEntity<PatientResponse> create(@Valid @RequestBody PatientRequest req) {
-        var saved = service.create(PatientMapper.toEntity(req));
+        var saved = service.create(PatientMapper.toEntity(req, null)); // userId will come from /from-user endpoint
         return ResponseEntity.status(HttpStatus.CREATED).body(PatientMapper.toResponse(saved));
     }
 
@@ -52,5 +56,24 @@ public class PatientController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    @PostMapping("/from-user")
+    public ResponseEntity<PatientResponse> createFromUser(@RequestBody Map<String, Object> req) {
+        System.out.println("📥 Received request to create patient from user: " + req);
+
+        Patient patient = new Patient();
+        patient.setUserId(((Number) req.get("userId")).longValue());
+        patient.setFirstName((String) req.get("firstName"));
+        patient.setLastName((String) req.get("lastName"));
+        patient.setGender(Gender.valueOf((String) req.get("gender")));
+        patient.setBirthDate(java.time.LocalDate.parse((String) req.get("birthDate")));
+        patient.setPhone((String) req.get("phone"));
+        patient.setAddress((String) req.get("address"));
+
+        Patient saved = service.create(patient);
+        System.out.println("✅ Patient created successfully: " + saved.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(PatientMapper.toResponse(saved));
     }
 }

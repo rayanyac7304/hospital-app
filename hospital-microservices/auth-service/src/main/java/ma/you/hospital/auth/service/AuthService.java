@@ -1,5 +1,6 @@
 package ma.you.hospital.auth.service;
 
+import ma.you.hospital.auth.client.PatientServiceClient;
 import ma.you.hospital.auth.domain.Role;
 import ma.you.hospital.auth.domain.User;
 import ma.you.hospital.auth.dto.AuthResponse;
@@ -11,6 +12,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class AuthService {
 
@@ -18,16 +23,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final PatientServiceClient patientServiceClient;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       PatientServiceClient patientServiceClient) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.patientServiceClient = patientServiceClient;
     }
+
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -49,17 +58,42 @@ public class AuthService {
 
         user = userRepository.save(user);
 
+        // ← NEW: Create patient if role is PATIENT
+        if (role == Role.PATIENT) {
+            createPatientProfile(user.getId(), request);
+        }
+
         String token = jwtService.generateToken(user);
 
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")
-                .expiresIn(3600L) // doit être cohérent avec jwt.expiration-ms
+                .expiresIn(3600L)
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    private void createPatientProfile(Long userId, RegisterRequest request) {
+        try {
+            Map<String, Object> patientRequest = new HashMap<>();
+            patientRequest.put("userId", userId);
+            patientRequest.put("firstName", request.getFirstName());
+            patientRequest.put("lastName", request.getLastName());
+            patientRequest.put("gender", request.getGender());
+            patientRequest.put("birthDate", request.getBirthDate());
+            patientRequest.put("phone", request.getPhone());
+            patientRequest.put("address", request.getAddress());
+
+            patientServiceClient.createPatientFromUser(patientRequest);
+            System.out.println("✅ Patient profile created successfully for userId: " + userId);
+        } catch (Exception e) {
+            System.err.println("❌ Failed to create patient profile: " + e.getMessage());
+            e.printStackTrace();
+            // Don't fail user creation if patient creation fails
+        }
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -71,6 +105,7 @@ public class AuthService {
                     )
             );
         } catch (AuthenticationException e) {
+            e.printStackTrace();
             throw new RuntimeException("Invalid credentials");
         }
 
@@ -89,5 +124,63 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
+    }
+
+    public List<Map<String, Object>> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("email", user.getEmail());
+                    userMap.put("role", user.getRole().name());
+                    userMap.put("enabled", user.getEnabled());
+                    return userMap;
+                })
+                .toList();
+    }
+
+    public Map<String, Object> getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        userMap.put("username", user.getUsername());
+        userMap.put("email", user.getEmail());
+        userMap.put("role", user.getRole().name());
+        userMap.put("enabled", user.getEnabled());
+        return userMap;
+    }
+
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Prevent deleting admin accounts
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Impossible de supprimer un compte administrateur");
+        }
+
+        userRepository.deleteById(id);
+    }
+
+    public void updateUser(Long id, RegisterRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        // Prevent changing admin accounts
+        if (user.getRole() == Role.ADMIN) {
+            throw new RuntimeException("Impossible de modifier un compte administrateur");
+        }
+
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        user.setRole(Role.valueOf(request.getRole().toUpperCase()));
+
+        userRepository.save(user);
     }
 }

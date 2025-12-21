@@ -13,8 +13,5 @@ export class FactureListComponent {
 
   role: 'admin' | 'doctor' | 'patient' = 'admin'; // temporary
 
-  factures = [
-    { id: 1, patient: 'John Doe', amount: 220, date: '2025-02-01' },
-    { id: 2, patient: 'Sarah Lee', amount: 350, date: '2025-02-05' },
-  ];
+  factures: any[] = [];
 }

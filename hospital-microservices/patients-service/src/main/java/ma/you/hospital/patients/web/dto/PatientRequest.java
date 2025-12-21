@@ -9,7 +9,6 @@ public record PatientRequest(
         @NotBlank @Size(max = 60) String lastName,
         Gender gender,
         LocalDate birthDate,
-        @Email @Size(max = 120) String email,
         @Size(max = 30) String phone,
         @Size(max = 255) String address
 ) {}

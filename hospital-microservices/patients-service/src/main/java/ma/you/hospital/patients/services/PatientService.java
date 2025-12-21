@@ -27,18 +27,12 @@ public class PatientService {
     }
 
     public Patient create(Patient p) {
-        if (p.getEmail() != null && repo.existsByEmail(p.getEmail())) {
-            throw new BusinessException("Email already used");
-        }
         return repo.save(p);
     }
 
     public Patient update(Long id, java.util.function.Consumer<Patient> updater) {
         var p = get(id);
         updater.accept(p);
-        if (p.getEmail() != null && repo.existsByEmail(p.getEmail()) && !p.getId().equals(id)) {
-            throw new BusinessException("Email already used");
-        }
         return repo.save(p);
     }
 
