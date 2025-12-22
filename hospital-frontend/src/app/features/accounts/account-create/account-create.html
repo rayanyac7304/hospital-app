@@ -1,80 +1,83 @@
 <div class="form-container">
   <h2>Créer un compte</h2>
 
-  <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+  <form
+    *ngIf="accountForm"
+    [formGroup]="accountForm"
+    (ngSubmit)="onSubmit()"
+  >
+
+    <!-- USERNAME -->
     <div class="form-group">
-      <label for="username">Nom d'utilisateur</label>
-      <input
-        type="text"
-        id="username"
-        formControlName="username"
-        class="form-input"
-        placeholder="Entrez le nom d'utilisateur"
-        [class.error]="accountForm.get('username')?.invalid && accountForm.get('username')?.touched"
-      />
-      <span class="error-message" *ngIf="accountForm.get('username')?.invalid && accountForm.get('username')?.touched">
-        @if (accountForm.get('username')?.errors?.['required']) {
-          Le nom d'utilisateur est requis
-        }
-        @if (accountForm.get('username')?.errors?.['minlength']) {
-          Minimum 3 caractères
-        }
-      </span>
+      <label>Nom d'utilisateur</label>
+      <input type="text" formControlName="username" class="form-input" />
     </div>
 
+    <!-- EMAIL -->
     <div class="form-group">
-      <label for="email">Email</label>
-      <input
-        type="email"
-        id="email"
-        formControlName="email"
-        class="form-input"
-        placeholder="exemple@email.com"
-        [class.error]="accountForm.get('email')?.invalid && accountForm.get('email')?.touched"
-      />
-      <span class="error-message" *ngIf="accountForm.get('email')?.invalid && accountForm.get('email')?.touched">
-        @if (accountForm.get('email')?.errors?.['required']) {
-          L'email est requis
-        }
-        @if (accountForm.get('email')?.errors?.['email']) {
-          Email invalide
-        }
-      </span>
+      <label>Email</label>
+      <input type="email" formControlName="email" class="form-input" />
     </div>
 
+    <!-- PASSWORD -->
     <div class="form-group">
-      <label for="password">Mot de passe</label>
-      <input
-        type="password"
-        id="password"
-        formControlName="password"
-        class="form-input"
-        placeholder="Minimum 6 caractères"
-        [class.error]="accountForm.get('password')?.invalid && accountForm.get('password')?.touched"
-      />
-      <span class="error-message" *ngIf="accountForm.get('password')?.invalid && accountForm.get('password')?.touched">
-        @if (accountForm.get('password')?.errors?.['required']) {
-          Le mot de passe est requis
-        }
-        @if (accountForm.get('password')?.errors?.['minlength']) {
-          Minimum 6 caractères
-        }
-      </span>
+      <label>Mot de passe</label>
+      <input type="password" formControlName="password" class="form-input" />
     </div>
 
+    <!-- ROLE -->
     <div class="form-group">
-      <label for="role">Rôle</label>
-      <select
-        id="role"
-        formControlName="role"
-        class="form-input"
-      >
-        @for (role of roles; track role.value) {
-        <option [value]="role.value">{{ role.label }}</option>
-        }
+      <label>Rôle</label>
+      <select formControlName="role" class="form-input">
+        <option *ngFor="let role of roles" [value]="role.value">
+          {{ role.label }}
+        </option>
       </select>
     </div>
 
+    <!-- PATIENT FIELDS -->
+    <ng-container *ngIf="accountForm.get('role')?.value === 'PATIENT'">
+
+      <hr />
+      <h3>Informations Patient</h3>
+
+      <div class="form-group">
+        <label>Prénom</label>
+        <input type="text" formControlName="firstName" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" formControlName="lastName" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Genre</label>
+        <select formControlName="gender" class="form-input">
+          <option value="">-- Choisir --</option>
+          <option value="MALE">Homme</option>
+          <option value="FEMALE">Femme</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date de naissance</label>
+        <input type="date" formControlName="birthDate" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="text" formControlName="phone" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Adresse</label>
+        <input type="text" formControlName="address" class="form-input" />
+      </div>
+
+    </ng-container>
+
+    <!-- MESSAGES -->
     <div class="alert alert-success" *ngIf="successMessage">
       {{ successMessage }}
     </div>
@@ -83,14 +86,16 @@
       {{ errorMessage }}
     </div>
 
+    <!-- BUTTONS -->
     <div class="buttons">
-      <button type="submit" class="btn-primary" [disabled]="accountForm.invalid || isLoading">
-        <span *ngIf="!isLoading">Créer le compte</span>
-        <span *ngIf="isLoading">Création...</span>
+      <button type="submit" class="btn-primary">
+        Créer le compte
       </button>
+
       <button type="button" class="btn-cancel" (click)="onCancel()">
         Annuler
       </button>
     </div>
+
   </form>
 </div>

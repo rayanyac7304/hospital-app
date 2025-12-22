@@ -74,3 +74,19 @@ a.cancel:hover {
   background-color: #e5e7eb;
   color: #374151;
 }
+
+select {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+select:focus {
+  border-color: #3727e3;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(55, 39, 227, 0.1);
+}
+

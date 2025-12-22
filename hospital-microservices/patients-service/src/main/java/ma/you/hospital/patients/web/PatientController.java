@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patients")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PatientController {
 
     private final PatientService service;
@@ -51,9 +50,9 @@ public class PatientController {
         var updated = service.update(id, p -> PatientMapper.update(p, req));
         return PatientMapper.toResponse(updated);
     }
-
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
@@ -76,4 +75,12 @@ public class PatientController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(PatientMapper.toResponse(saved));
     }
+
+
+    @DeleteMapping("/by-user/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteByUserId(@PathVariable Long userId) {
+        service.deleteByUserId(userId);
+    }
+
 }

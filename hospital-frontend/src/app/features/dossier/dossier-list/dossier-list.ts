@@ -1,34 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-dossier-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, HttpClientModule],
   templateUrl: './dossier-list.html',
   styleUrls: ['./dossier-list.css']
 })
 export class DossierList implements OnInit {
 
-  // Empty array ready to be filled later by backend response
   dossiers: any[] = [];
+  private apiUrl = 'http://localhost:8090/api/medical-records';
 
-  constructor() {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadDossiers();
   }
 
-  // Temporary placeholder before connecting backend
-  loadDossiers() {
-    /**
-     * TODO: Later replace this with a real API call using DossierService.
-     * e.g.
-     * this.dossierService.getAll().subscribe(data => this.dossiers = data);
-     */
-
-    // For now do nothing — leaves dossiers empty instead of using mock data.
-    this.dossiers = [];
+  loadDossiers(): void {
+    this.http.get<any[]>(this.apiUrl).subscribe({
+      next: data => {
+        this.dossiers = data;
+        this.cdr.detectChanges(); // 🔹 force Angular to update the view
+      },
+      error: err => console.error('Failed to load dossiers', err)
+    });
   }
 }

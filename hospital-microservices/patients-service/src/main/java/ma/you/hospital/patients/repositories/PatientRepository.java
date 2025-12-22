@@ -5,6 +5,8 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
@@ -13,5 +15,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             "OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Patient> search(String q, Pageable pageable);
 
+    Optional<Patient> findByUserId(Long userId);
 
 }

@@ -102,6 +102,26 @@ services:
       - hospital-net
 
   # =========================
+  # Base de données MEDICAL RECORDS
+  # =========================
+  medical-records-db:
+    image: mysql:8.4
+    container_name: medical-records-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: medical_records
+      MYSQL_USER: hospital
+      MYSQL_PASSWORD: hospital
+    ports:
+      - "3313:3306"
+    volumes:
+      - ./db/medical-records/data:/var/lib/mysql
+      - ./db/medical-records/init:/docker-entrypoint-initdb.d
+    networks:
+      - hospital-net
+
+  # =========================
   # PhpMyAdmin (optionnel)
   # =========================
   phpmyadmin:

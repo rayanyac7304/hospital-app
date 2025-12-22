@@ -6,16 +6,17 @@
   </button>
 </div>
 
-<!-- Search bar -->
+<!-- Search bar (UI only for now) -->
 <div class="search-container">
   <input
     type="text"
-    placeholder="Rechercher par nom de patient..."
+    placeholder="Rechercher par ID patient..."
     class="search-input"
   />
 </div>
 
 <div class="list-container">
+
   <!-- Empty State -->
   <div *ngIf="dossiers.length === 0" class="empty-message">
     Aucun dossier disponible.
@@ -24,19 +25,29 @@
   <!-- Dossier cards -->
   <div class="list-item" *ngFor="let d of dossiers">
     <div class="info">
-      <h3>{{ d.name }}</h3>
+      <h3>{{ d.title || 'Dossier sans titre' }}</h3>
+      <small>Patient ID : {{ d.patientId }}</small>
     </div>
 
     <div class="item-actions">
-      <button [routerLink]="['/dossier/detail', d.id]" class="btn-view">
+      <button
+        [routerLink]="['/dossier/detail', d.id]"
+        class="btn-view">
         Voir
       </button>
-      <button [routerLink]="['/dossier/documents', d.id]" class="btn-documents">
+
+      <button
+        [routerLink]="['/dossier/documents', d.id]"
+        class="btn-documents">
         Documents
       </button>
-      <button [routerLink]="['/dossier/delete', d.id]" class="btn-danger">
+
+      <button
+        [routerLink]="['/dossier/delete', d.id]"
+        class="btn-danger">
         Supprimer
       </button>
     </div>
   </div>
+
 </div>

@@ -1,18 +1,38 @@
-<h2>Créer un dossier</h2>
+<h2>Créer un dossier médical</h2>
 
-<div class="form-container">
+<form class="form-container" (ngSubmit)="save()">
 
-  <label for="name">Nom du dossier</label>
+  <!-- Patient selection -->
+  <label for="patient">Patient</label>
+  <select
+    id="patient"
+    required
+    [(ngModel)]="dossier.patientId"
+    name="patientId"
+  >
+    <option value="" disabled selected>
+      -- Sélectionner un patient --
+    </option>
+    <option *ngFor="let p of patients" [value]="p.id">
+      {{ p.id }} ({{ p.firstName }} {{ p.lastName }})
+    </option>
+  </select>
+
+  <!-- Folder title -->
+  <label for="title">Titre du dossier</label>
   <input
-    id="name"
-    name="name"
-    [(ngModel)]="dossier.name"
+    id="title"
     type="text"
+    required
+    [(ngModel)]="dossier.title"
+    name="title"
+    placeholder="Ex: Dossier cardiologie"
   />
 
+  <!-- Actions -->
   <div class="button-group">
-    <button class="save" (click)="save()">Créer</button>
-    <a class="cancel" routerLink="/dossier">Retour</a>
+    <button type="submit" class="save">Créer</button>
+    <a routerLink="/dossier" class="cancel">Annuler</a>
   </div>
 
-</div>
+</form>

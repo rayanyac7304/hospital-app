@@ -1,79 +1,97 @@
 package ma.you.hospital.doctors.web;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import ma.you.hospital.doctors.domain.Doctor;
-import ma.you.hospital.doctors.repositories.DoctorRepository;
+import ma.you.hospital.doctors.service.DoctorService;
 import ma.you.hospital.doctors.dto.DoctorRequest;
 import ma.you.hospital.doctors.dto.DoctorResponse;
 import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.validation.Valid;
-
-@Tag(name="Doctors", description="CRUD des médecins")
 @RestController
 @RequestMapping("/api/doctors")
 @CrossOrigin(origins = "http://localhost:4200")
 public class DoctorController {
 
-    private final DoctorRepository repo;
-    public DoctorController(DoctorRepository repo){ this.repo = repo; }
+    private final DoctorService service;
 
-    private static DoctorResponse toDto(Doctor d){
-        return new DoctorResponse(d.getId(), d.getFirstName(), d.getLastName(),
-                d.getSpecialty(), d.getEmail(), d.getPhone(), d.getAddress(),
-                d.getCreatedAt(), d.getUpdatedAt());
+    public DoctorController(DoctorService service) {
+        this.service = service;
     }
 
-    @Operation(summary = "Lister les médecins")
+    /* ============================
+       LIST (with search)
+       ============================ */
     @GetMapping
-    public Page<DoctorResponse> list(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "lastName,asc") String sort) {
+    public Page<DoctorResponse> list(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "lastName,asc") String sort
+    ) {
+        Sort s = Sort.by(sort.split(",")[0]);
+        if (sort.endsWith(",desc")) s = s.descending();
+        else s = s.ascending();
 
-        Sort sortSpec;
-        String[] parts = sort.split(",");
-        if (parts.length >= 2 && "desc".equalsIgnoreCase(parts[1])) {
-            sortSpec = Sort.by(Sort.Order.desc(parts[0]));
-        } else {
-            sortSpec = Sort.by(Sort.Order.asc(parts[0]));
-        }
+        Pageable pageable = PageRequest.of(page, size, s);
 
-        Pageable pageable = PageRequest.of(page, size, sortSpec);
-        return repo.findAll(pageable).map(DoctorController::toDto);
+        return service.list(q, pageable)
+                .map(DoctorMapper::toResponse);
     }
 
-    @Operation(summary="Créer un médecin")
-    @PostMapping
-    public DoctorResponse create(@RequestBody @Valid DoctorRequest req){
-        var d = new Doctor();
-        d.setFirstName(req.firstName()); d.setLastName(req.lastName());
-        d.setSpecialty(req.specialty()); d.setEmail(req.email());
-        d.setPhone(req.phone()); d.setAddress(req.address());
-        return toDto(repo.save(d));
-    }
-
-    @Operation(summary="Détail médecin")
+    /* ============================
+       GET BY ID
+       ============================ */
     @GetMapping("/{id}")
-    public DoctorResponse get(@PathVariable Long id){
-        var d = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return toDto(d);
+    public DoctorResponse get(@PathVariable Long id) {
+        return DoctorMapper.toResponse(service.get(id));
     }
 
-    @Operation(summary="Mettre à jour")
+    /* ============================
+       CREATE
+       ============================ */
+    @PostMapping
+    public ResponseEntity<DoctorResponse> create(
+            @Valid @RequestBody DoctorRequest req
+    ) {
+        Doctor saved = service.create(
+                DoctorMapper.toEntity(req, null) // userId later from auth
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(DoctorMapper.toResponse(saved));
+    }
+
+    /* ============================
+       UPDATE
+       ============================ */
     @PutMapping("/{id}")
-    public DoctorResponse update(@PathVariable Long id, @RequestBody @Valid DoctorRequest req){
-        var d = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        d.setFirstName(req.firstName()); d.setLastName(req.lastName());
-        d.setSpecialty(req.specialty()); d.setEmail(req.email());
-        d.setPhone(req.phone()); d.setAddress(req.address());
-        return toDto(repo.save(d));
+    public DoctorResponse update(
+            @PathVariable Long id,
+            @Valid @RequestBody DoctorRequest req
+    ) {
+        Doctor updated = service.update(id, d ->
+                DoctorMapper.update(d, req)
+        );
+        return DoctorMapper.toResponse(updated);
     }
 
-    @Operation(summary="Supprimer")
+    /* ============================
+       DELETE
+       ============================ */
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){ repo.deleteById(id); }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
+
+    /* ============================
+       DELETE BY USER ID
+       ============================ */
+    @DeleteMapping("/by-user/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteByUserId(@PathVariable Long userId) {
+        service.deleteByUserId(userId);
+    }
 }

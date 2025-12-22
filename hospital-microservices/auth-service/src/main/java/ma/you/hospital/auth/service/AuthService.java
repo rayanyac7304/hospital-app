@@ -39,14 +39,17 @@ public class AuthService {
 
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already used");
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already used");
-        }
 
         Role role = Role.valueOf(request.getRole().toUpperCase());
+
+        if (role == Role.PATIENT) {
+            if (request.getFirstName() == null ||
+                    request.getLastName() == null ||
+                    request.getGender() == null ||
+                    request.getBirthDate() == null) {
+                throw new IllegalArgumentException("Patient data is required");
+            }
+        }
 
         User user = User.builder()
                 .username(request.getUsername())
@@ -57,13 +60,11 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
+        String token = jwtService.generateToken(user);
 
-        // ← NEW: Create patient if role is PATIENT
         if (role == Role.PATIENT) {
             createPatientProfile(user.getId(), request);
         }
-
-        String token = jwtService.generateToken(user);
 
         return AuthResponse.builder()
                 .accessToken(token)
@@ -95,6 +96,7 @@ public class AuthService {
             // Don't fail user creation if patient creation fails
         }
     }
+
 
     public AuthResponse login(LoginRequest request) {
         try {
@@ -157,12 +159,26 @@ public class AuthService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Prevent deleting admin accounts
         if (user.getRole() == Role.ADMIN) {
             throw new RuntimeException("Impossible de supprimer un compte administrateur");
         }
 
+
+        if (user.getRole() == Role.PATIENT) {
+            deletePatientProfile(id);
+        }
+
         userRepository.deleteById(id);
+    }
+
+    private void deletePatientProfile(Long userId) {
+        try {
+            patientServiceClient.deletePatientByUserId(userId);
+            System.out.println("✅ Patient profile deleted for userId: " + userId);
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to delete patient profile: " + e.getMessage());
+            // Continue with user deletion even if patient deletion fails
+        }
     }
 
     public void updateUser(Long id, RegisterRequest request) {
@@ -183,4 +199,6 @@ public class AuthService {
 
         userRepository.save(user);
     }
+
+
 }

@@ -1,34 +1,66 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-dossier-create',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './dossier-create.html',
   styleUrls: ['./dossier-create.css']
 })
-export class DossierCreate {
+export class DossierCreate implements OnInit {
 
   dossier = {
-    name: ''
+    title: '',
+    patientId: null as number | null
   };
 
-  constructor(private router: Router) {}
+  patients: any[] = [];
 
-  save() {
-    console.log("Creating dossier:", this.dossier);
+  private dossierApi = 'http://localhost:8090/api/medical-records';
+  private patientApi = 'http://localhost:8083/api/patients';
 
-    // Later:
-    // this.dossierService.create(this.dossier).subscribe(() => {
-    //     this.router.navigate(['/dossier']);
-    // });
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private cdr: ChangeDetectorRef   // ✅ added
+  ) {}
 
-    // Temporary simulation:
-    alert('Dossier créé : ' + this.dossier.name);
+  ngOnInit(): void {
+    this.loadPatients();
+  }
 
-    this.router.navigate(['/dossier']);
+  loadPatients(): void {
+    this.http.get<any>(this.patientApi).subscribe({
+      next: res => {
+        this.patients = res.content;
+        this.cdr.detectChanges();   // ✅ force refresh
+      },
+      error: err => {
+        console.error('Failed to load patients', err);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  save(): void {
+    if (!this.dossier.patientId) {
+      alert('Veuillez sélectionner un patient');
+      return;
+    }
+
+    this.http.post(this.dossierApi, this.dossier).subscribe({
+      next: () => {
+        alert('Dossier créé');
+        this.router.navigate(['/dossier']);
+      },
+      error: err => {
+        console.error('Creation failed', err);
+        alert('Erreur lors de la création');
+      }
+    });
   }
 }

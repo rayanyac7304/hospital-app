@@ -32,34 +32,44 @@ export class AdminListComponent implements AfterViewInit {
     this.loadAccounts();
   }
 
-  loadAccounts(): void {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+ loadAccounts(): void {
+   const token = localStorage.getItem('token');
 
-    this.http.get<any[]>(`${this.apiUrl}/users`, { headers }).subscribe({
-      next: (data) => {
-        // Filter out admin accounts
-        this.accounts = data.filter(acc => acc.role !== 'ADMIN');
-        this.filteredAccounts = [...this.accounts];
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Error loading accounts:', error);
-        this.cdr.detectChanges();
-      }
-    });
-  }
+   const headers = new HttpHeaders({
+     Authorization: `Bearer ${token}`
+   });
+
+   this.http.get<any[]>(`${this.apiUrl}/users`, { headers }).subscribe({
+     next: (data) => {
+       console.log('RAW RESPONSE:', data);
+
+       this.accounts = Array.isArray(data)
+         ? data.filter(acc => acc.role !== 'ADMIN')
+         : [];
+
+       this.filteredAccounts = [...this.accounts];
+     },
+     error: (error) => {
+       console.error('HTTP ERROR:', error);
+     }
+   });
+ }
+
+
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     const searchTerm = input.value.toLowerCase();
 
+    if (!this.accounts) {
+      this.filteredAccounts = [];
+      return;
+    }
+
     if (searchTerm) {
       this.filteredAccounts = this.accounts.filter(acc =>
-        acc.username.toLowerCase().includes(searchTerm) ||
-        acc.email.toLowerCase().includes(searchTerm)
+        acc.username?.toLowerCase().includes(searchTerm) ||
+        acc.email?.toLowerCase().includes(searchTerm)
       );
     } else {
       this.filteredAccounts = [...this.accounts];
