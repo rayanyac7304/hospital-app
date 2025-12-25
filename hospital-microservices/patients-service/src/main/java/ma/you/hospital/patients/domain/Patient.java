@@ -19,8 +19,7 @@ public class Patient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false, unique = true)
-    private Long userId;   // 🔗 REQUIRED login
+    private Long userId;
 
     @Column(nullable = false, length = 60)
     private String firstName;

@@ -18,7 +18,7 @@ const routes: Routes = [
     path: 'delete/:id',
     loadComponent: () =>
       import('./facture-delete/facture-delete')
-        .then(m => m.FactureDelete)
+        .then(m => m.FactureDeleteComponent)
   },
   {
     path: 'generate/:id',

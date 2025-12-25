@@ -85,13 +85,4 @@ public class DoctorController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
-
-    /* ============================
-       DELETE BY USER ID
-       ============================ */
-    @DeleteMapping("/by-user/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByUserId(@PathVariable Long userId) {
-        service.deleteByUserId(userId);
-    }
 }

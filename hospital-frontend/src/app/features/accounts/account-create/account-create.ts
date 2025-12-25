@@ -51,33 +51,52 @@ export class AccountCreateComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['DOCTOR', Validators.required],
 
+      // shared
       firstName: [''],
       lastName: [''],
+      phone: [''],
+      address: [''],
+
+      // patient
       gender: [''],
       birthDate: [''],
-      phone: [''],
-      address: ['']
+
+      // doctor
+      specialty: ['']
     });
+
 
     const form = this.accountForm;
 
     // Dynamic validators for PATIENT
-    form.get('role')!.valueChanges.subscribe(role => {
+    this.accountForm.get('role')!.valueChanges.subscribe(role => {
+
       const patientFields = ['firstName', 'lastName', 'gender', 'birthDate'];
+      const doctorFields  = ['firstName', 'lastName', 'specialty'];
 
-      patientFields.forEach(field => {
-        const control = form.get(field)!;
-
-        if (role === 'PATIENT') {
-          control.setValidators(Validators.required);
-        } else {
-          control.clearValidators();
-          control.setValue('');
-        }
-
-        control.updateValueAndValidity();
+      [...patientFields, ...doctorFields].forEach(f => {
+        const c = this.accountForm.get(f)!;
+        c.clearValidators();
+        c.updateValueAndValidity();
       });
+
+      if (role === 'PATIENT') {
+        patientFields.forEach(f => {
+          const c = this.accountForm.get(f)!;
+          c.setValidators(Validators.required);
+          c.updateValueAndValidity();
+        });
+      }
+
+      if (role === 'DOCTOR') {
+        doctorFields.forEach(f => {
+          const c = this.accountForm.get(f)!;
+          c.setValidators(Validators.required);
+          c.updateValueAndValidity();
+        });
+      }
     });
+
   }
 
   onSubmit(): void {

@@ -21,7 +21,7 @@ public class Doctor {
 
     @Column(nullable=false) private String specialty;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+
     private Long userId;
 
     private String phone;

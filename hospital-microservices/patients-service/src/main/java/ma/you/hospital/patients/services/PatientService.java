@@ -43,7 +43,5 @@ public class PatientService {
         repo.deleteById(id);
     }
 
-    public void deleteByUserId(Long userId) {
-        repo.findByUserId(userId).ifPresent(patient -> repo.deleteById(patient.getId()));
-    }
+
 }

@@ -1,4 +1,5 @@
 package ma.you.hospital.patients.web;
+
 import ma.you.hospital.patients.domain.Gender;
 import ma.you.hospital.patients.domain.Patient;
 import ma.you.hospital.patients.services.PatientService;
@@ -9,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -29,7 +31,8 @@ public class PatientController {
             @RequestParam(defaultValue = "lastName,asc") String sort
     ) {
         Sort s = Sort.by(sort.split(",")[0]);
-        if (sort.endsWith(",desc")) s = s.descending(); else s = s.ascending();
+        if (sort.endsWith(",desc")) s = s.descending();
+        else s = s.ascending();
         Pageable pageable = PageRequest.of(page, size, s);
         return service.list(q, pageable).map(PatientMapper::toResponse);
     }
@@ -39,10 +42,21 @@ public class PatientController {
         return PatientMapper.toResponse(service.get(id));
     }
 
+    // ✅ Main endpoint - used by frontend
     @PostMapping
     public ResponseEntity<PatientResponse> create(@Valid @RequestBody PatientRequest req) {
-        var saved = service.create(PatientMapper.toEntity(req, null)); // userId will come from /from-user endpoint
-        return ResponseEntity.status(HttpStatus.CREATED).body(PatientMapper.toResponse(saved));
+        System.out.println("📥 Creating patient from frontend");
+        System.out.println("   - firstName: " + req.firstName());
+
+
+        Patient patient = PatientMapper.toEntity(req, null);
+        patient.setUserId(null);  // ← Frontend patients don't have userId
+
+        Patient saved = service.create(patient);
+        System.out.println("✅ Patient created: " + saved.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(PatientMapper.toResponse(saved));
     }
 
     @PutMapping("/{id}")
@@ -50,37 +64,34 @@ public class PatientController {
         var updated = service.update(id, p -> PatientMapper.update(p, req));
         return PatientMapper.toResponse(updated);
     }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
 
+    // ✅ Internal endpoint - used by Auth Service via Feign
     @PostMapping("/from-user")
     public ResponseEntity<PatientResponse> createFromUser(@RequestBody Map<String, Object> req) {
-        System.out.println("📥 Received request to create patient from user: " + req);
+        System.out.println("📥 Creating patient from Auth Service");
+        System.out.println("   - userId: " + req.get("userId"));
+        System.out.println("   - firstName: " + req.get("firstName"));
 
         Patient patient = new Patient();
-        patient.setUserId(((Number) req.get("userId")).longValue());
+        patient.setUserId(((Number) req.get("userId")).longValue());  // ← Auth patients have userId
         patient.setFirstName((String) req.get("firstName"));
         patient.setLastName((String) req.get("lastName"));
         patient.setGender(Gender.valueOf((String) req.get("gender")));
-        patient.setBirthDate(java.time.LocalDate.parse((String) req.get("birthDate")));
+        patient.setBirthDate(LocalDate.parse((String) req.get("birthDate")));
         patient.setPhone((String) req.get("phone"));
         patient.setAddress((String) req.get("address"));
 
         Patient saved = service.create(patient);
-        System.out.println("✅ Patient created successfully: " + saved.getId());
+        System.out.println("✅ Patient created with userId: " + saved.getId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(PatientMapper.toResponse(saved));
-    }
-
-
-    @DeleteMapping("/by-user/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByUserId(@PathVariable Long userId) {
-        service.deleteByUserId(userId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(PatientMapper.toResponse(saved));
     }
 
 }

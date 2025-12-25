@@ -62,8 +62,4 @@ public class DoctorService {
     /* ============================
        DELETE BY USER ID
        ============================ */
-    public void deleteByUserId(Long userId) {
-        repo.findByUserId(userId)
-                .ifPresent(d -> repo.deleteById(d.getId()));
-    }
 }

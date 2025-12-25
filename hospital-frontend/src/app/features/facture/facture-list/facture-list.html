@@ -6,20 +6,23 @@
   </button>
 </div>
 
-<!-- Search and Filter Section -->
+<!-- Search Section (date filter removed) -->
 <div class="search-container">
   <input
     type="text"
     placeholder="Rechercher par nom de patient ou médecin..."
     class="search-input"
-  />
-  <input
-    type="date"
-    class="date-input"
+    [value]="search"
+    (input)="onSearchChange($any($event.target).value)"
   />
 </div>
 
-<div class="list-container">
+<div *ngIf="loading" class="loading">
+  Chargement...
+</div>
+
+<div class="list-container" *ngIf="!loading">
+
   <!-- Empty state -->
   <div *ngIf="factures.length === 0" class="empty-message">
     Aucune facture disponible.
@@ -28,19 +31,33 @@
   <!-- Facture cards -->
   <div class="list-item" *ngFor="let f of factures">
     <div class="info">
-      <h3>Facture #{{ f.id }}</h3>
-      <p>Patient : {{ f.patient }}</p>
-      <p>Montant : {{ f.amount }} DH</p>
-      <p>Date : {{ f.date }}</p>
+      <h3>Facture #{{ f.bill.id }}</h3>
+
+      <p>
+        Patient :
+        {{ f.patient?.firstName }} {{ f.patient?.lastName || '' }}
+      </p>
+
+      <p>
+        Médecin :
+        {{ f.doctor?.firstName }} {{ f.doctor?.lastName }}
+      </p>
+
+      <p>Spécialité : {{ f.doctor?.specialty }}</p>
+      <p>Montant : {{ f.bill.amount }} DH</p>
+      <p>Date : {{ f.bill.billDate }}</p>
     </div>
 
     <div class="item-actions">
-      <button [routerLink]="['/facture/generate', f.id]" class="btn-view">
+      <button
+        [routerLink]="['/facture/generate', f.bill.id]"
+        class="btn-primary">
         Générer
       </button>
+
       <button
         *ngIf="role !== 'patient'"
-        [routerLink]="['/facture/delete', f.id]"
+        (click)="deleteFacture(f.bill.id)"
         class="btn-danger">
         Supprimer
       </button>

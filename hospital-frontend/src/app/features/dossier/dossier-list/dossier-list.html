@@ -6,14 +6,7 @@
   </button>
 </div>
 
-<!-- Search bar (UI only for now) -->
-<div class="search-container">
-  <input
-    type="text"
-    placeholder="Rechercher par ID patient..."
-    class="search-input"
-  />
-</div>
+
 
 <div class="list-container">
 
@@ -32,13 +25,13 @@
     <div class="item-actions">
       <button
         [routerLink]="['/dossier/detail', d.id]"
-        class="btn-view">
+        class="btn-primary">
         Voir
       </button>
 
       <button
         [routerLink]="['/dossier/documents', d.id]"
-        class="btn-documents">
+        class="btn-warning">
         Documents
       </button>
 

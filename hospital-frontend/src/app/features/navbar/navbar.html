@@ -4,43 +4,40 @@
   </div>
 
   <ul class="navbar-menu">
-    <!-- Show "Comptes" for admin, "Compte" for patient/doctor at different positions -->
-    @if (role === 'admin') {
-    <li>
+    <!--<li>
       <a routerLink="/accounts" routerLinkActive="active">
         Comptes
       </a>
-    </li>
-    }
+    </li>-->
 
     <li>
       <a routerLink="/patient" routerLinkActive="active">
         Patients
       </a>
     </li>
+
+    <li>
+      <a routerLink="/docteur" routerLinkActive="active">
+        Docteurs
+      </a>
+    </li>
+
     <li>
       <a routerLink="/rdv" routerLinkActive="active">
         Rendez-vous
       </a>
     </li>
+
     <li>
       <a routerLink="/facture" routerLinkActive="active">
         Factures
       </a>
     </li>
+
     <li>
       <a routerLink="/dossier" routerLinkActive="active">
         Dossiers
       </a>
     </li>
-
-    <!-- Show "Compte" at the end for patient/doctor -->
-    @if (role === 'patient' || role === 'doctor') {
-    <li>
-      <a routerLink="/account" routerLinkActive="active">
-        Compte
-      </a>
-    </li>
-    }
   </ul>
 </nav>

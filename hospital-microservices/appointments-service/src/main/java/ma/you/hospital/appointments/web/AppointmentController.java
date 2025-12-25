@@ -1,6 +1,7 @@
 package ma.you.hospital.appointments.web;
 
 import lombok.RequiredArgsConstructor;
+import ma.you.hospital.appointments.dto.AppointmentDetailResponse;
 import ma.you.hospital.appointments.dto.AppointmentRequest;
 import ma.you.hospital.appointments.domain.Appointment;
 import ma.you.hospital.appointments.services.AppointmentService;
@@ -25,8 +26,11 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> all() {
-        return appointmentService.getAll();
+    public List<AppointmentDetailResponse> all(
+            @RequestParam(required = false) String date
+    ) {
+        LocalDate filterDate = date != null ? LocalDate.parse(date) : null;
+        return appointmentService.getAllWithDetails(filterDate);
     }
 
     @GetMapping("/{id}")

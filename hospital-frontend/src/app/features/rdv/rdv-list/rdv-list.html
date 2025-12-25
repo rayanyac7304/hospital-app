@@ -12,10 +12,14 @@
     type="text"
     placeholder="Rechercher par nom de patient ou médecin..."
     class="search-input"
+    [(ngModel)]="searchQuery"
+    (input)="loadRdvs()"
   />
   <input
     type="date"
     class="date-input"
+    [(ngModel)]="filterDate"
+    (change)="loadRdvs()"
   />
 </div>
 
@@ -31,12 +35,13 @@
 
     <div class="info">
       <h3>{{ r.date }} - {{ r.time }}</h3>
-      <p>Patient ID : {{ r.patientId }}</p>
-      <p>Médecin ID : {{ r.doctorId }}</p>
+      <p><strong>Patient :</strong> {{ r.patientName }} (ID: {{ r.patientId }})</p>
+      <p><strong>Médecin :</strong> {{ r.doctorName }} (ID: {{ r.doctorId }})</p>
 
       <p class="status"
          [class.confirmed]="r.status === 'CONFIRMED'"
-         [class.pending]="r.status === 'PENDING'">
+         [class.pending]="r.status === 'PENDING'"
+         [class.cancelled]="r.status === 'CANCELLED'">
         Statut : {{ r.status }}
       </p>
     </div>

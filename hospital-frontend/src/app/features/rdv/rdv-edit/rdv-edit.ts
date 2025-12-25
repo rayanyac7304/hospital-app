@@ -44,7 +44,9 @@ export class RdvEditPage implements OnInit {
     private rdvService: RdvService,
     private cdr: ChangeDetectorRef
   ) {
-    this.id = Number(this.route.snapshot.queryParamMap.get('id'));
+    // FIXED: Use paramMap for path parameters (:id) instead of queryParamMap (?id=)
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.id = idParam ? Number(idParam) : 0;
   }
 
   ngOnInit(): void {
@@ -82,7 +84,7 @@ export class RdvEditPage implements OnInit {
   }
 
   loadRdv() {
-    if (this.id) {
+    if (this.id && this.id > 0) {
       this.rdvService.getById(this.id).subscribe({
         next: (rdv) => {
           this.form = {

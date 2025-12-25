@@ -1,39 +1,90 @@
 package ma.you.hospital.appointments.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ma.you.hospital.appointments.clients.DoctorRestClient;
 import ma.you.hospital.appointments.clients.PatientRestClient;
+import ma.you.hospital.appointments.dto.AppointmentDetailResponse;
 import ma.you.hospital.appointments.dto.AppointmentRequest;
 import ma.you.hospital.appointments.domain.Appointment;
 import ma.you.hospital.appointments.repositories.AppointmentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import feign.FeignException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRestClient doctorRestClient;
     private final PatientRestClient patientRestClient;
 
-    public Appointment createAppointment(AppointmentRequest request) {
-        // Verify patient exists
-        patientRestClient.getPatientById(request.getPatientId());
+    public List<AppointmentDetailResponse> getAllWithDetails(LocalDate filterDate) {
+        List<Appointment> appointments;
 
-        // Verify doctor exists
+        if (filterDate != null) {
+            appointments = appointmentRepository.findByDate(filterDate);
+        } else {
+            appointments = appointmentRepository.findAll();
+        }
+
+        return appointments.stream()
+                .map(this::toDetailResponse)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private AppointmentDetailResponse toDetailResponse(Appointment appointment) {
+        try {
+            // Fetch patient and doctor details
+            Map<String, Object> patient = patientRestClient.getPatientById(appointment.getPatientId());
+            Map<String, Object> doctor = doctorRestClient.getDoctorById(appointment.getDoctorId());
+
+            // Extract names from Map
+            String patientName = patient.get("firstName") + " " + patient.get("lastName");
+            String doctorName = doctor.get("firstName") + " " + doctor.get("lastName");
+
+            return AppointmentDetailResponse.builder()
+                    .id(appointment.getId())
+                    .doctorId(appointment.getDoctorId())
+                    .doctorName(doctorName)
+                    .patientId(appointment.getPatientId())
+                    .patientName(patientName)
+                    .date(appointment.getDate().toString())
+                    .time(appointment.getTime().toString())
+                    .status(appointment.getStatus())
+                    .build();
+        } catch (FeignException.NotFound e) {
+            log.warn("Patient or Doctor not found for appointment ID {}: patientId={}, doctorId={}",
+                    appointment.getId(), appointment.getPatientId(), appointment.getDoctorId());
+            return null;
+        } catch (FeignException e) {
+            log.error("Error fetching patient/doctor details for appointment {}: {}",
+                    appointment.getId(), e.getMessage());
+            return null;
+        } catch (Exception e) {
+            log.error("Unexpected error processing appointment {}: {}",
+                    appointment.getId(), e.getMessage());
+            return null;
+        }
+    }
+
+    public Appointment createAppointment(AppointmentRequest request) {
+        patientRestClient.getPatientById(request.getPatientId());
         doctorRestClient.getDoctorById(request.getDoctorId());
 
-        // Parse date and time
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime time = LocalTime.parse(request.getTime());
 
-        // Check if time slot is available
         if (appointmentRepository.existsByDoctorAndDateTime(request.getDoctorId(), date, time)) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -41,7 +92,6 @@ public class AppointmentService {
             );
         }
 
-        // Create appointment
         Appointment appointment = Appointment.builder()
                 .doctorId(request.getDoctorId())
                 .patientId(request.getPatientId())
@@ -68,24 +118,19 @@ public class AppointmentService {
     }
 
     public Appointment update(Long id, AppointmentRequest request) {
-        // Get existing appointment
         Appointment existing = getById(id);
 
-        // Verify patient exists (if changed)
         if (!existing.getPatientId().equals(request.getPatientId())) {
             patientRestClient.getPatientById(request.getPatientId());
         }
 
-        // Verify doctor exists (if changed)
         if (!existing.getDoctorId().equals(request.getDoctorId())) {
             doctorRestClient.getDoctorById(request.getDoctorId());
         }
 
-        // Parse new date and time
         LocalDate newDate = LocalDate.parse(request.getDate());
         LocalTime newTime = LocalTime.parse(request.getTime());
 
-        // Check if time slot changed and if new slot is available
         boolean dateTimeChanged = !existing.getDate().equals(newDate) ||
                 !existing.getTime().equals(newTime) ||
                 !existing.getDoctorId().equals(request.getDoctorId());
@@ -98,7 +143,6 @@ public class AppointmentService {
             );
         }
 
-        // Update fields
         existing.setDoctorId(request.getDoctorId());
         existing.setPatientId(request.getPatientId());
         existing.setDate(newDate);
@@ -131,17 +175,14 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    // Optional: Get appointments by patient
     public List<Appointment> getByPatientId(Long patientId) {
         return appointmentRepository.findByPatientId(patientId);
     }
 
-    // Optional: Get appointments by doctor
     public List<Appointment> getByDoctorId(Long doctorId) {
         return appointmentRepository.findByDoctorId(doctorId);
     }
 
-    // Optional: Get appointments by date
     public List<Appointment> getByDate(LocalDate date) {
         return appointmentRepository.findByDate(date);
     }

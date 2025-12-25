@@ -50,5 +50,13 @@ export const routes: Routes = [
         .then(m => m.DossierRoutingModule)
   },
 
+{
+  path: 'docteur',
+  loadChildren: () =>
+    import('./features/docteur/docteur-routing-module')
+      .then(m => m.DocteurRoutingModule)
+}
+
+
 
 ];

@@ -14,7 +14,6 @@ import ma.you.hospital.billing.web.dto.BillRequestDTO;
 import ma.you.hospital.billing.web.dto.BillResponseDTO;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,18 +61,42 @@ public class BillingService {
     // Lecture : toutes les factures
     // -----------------------
     @CircuitBreaker(name = "billingService", fallbackMethod = "getAllBillsFallback")
-    public List<BillResponseDTO> getAllBills() {
-        return billRepository.findAll().stream().map(bill -> {
-            DoctorDTO doctor = doctorRestClient.getDoctorById(bill.getDoctorId());
-            PatientDTO patient = patientRestClient.getPatientById(bill.getPatientId());
+    public List<BillResponseDTO> getAllBills(String q) {
 
-            return BillResponseDTO.builder()
-                    .bill(bill)
-                    .doctor(doctor)
-                    .patient(patient)
-                    .build();
-        }).collect(Collectors.toList());
+        List<BillResponseDTO> bills = billRepository.findAll()
+                .stream()
+                .map(bill -> {
+                    DoctorDTO doctor = doctorRestClient.getDoctorById(bill.getDoctorId());
+                    PatientDTO patient = patientRestClient.getPatientById(bill.getPatientId());
+
+                    return BillResponseDTO.builder()
+                            .bill(bill)
+                            .doctor(doctor)
+                            .patient(patient)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // 🔍 SEARCH FILTER
+        if (q != null && !q.isBlank()) {
+            String query = q.toLowerCase();
+
+            bills = bills.stream()
+                    .filter(b ->
+                            (b.getDoctor() != null &&
+                                    (b.getDoctor().getFirstName() + " " + b.getDoctor().getLastName())
+                                            .toLowerCase().contains(query))
+                                    ||
+                                    (b.getPatient() != null &&
+                                            (b.getPatient().getFirstName() + " " + b.getPatient().getLastName())
+                                                    .toLowerCase().contains(query))
+                    )
+                    .collect(Collectors.toList());
+        }
+
+        return bills;
     }
+
 
     /**
      * Fallback de getAllBills : si un microservice externe (patients/doctors) est down,

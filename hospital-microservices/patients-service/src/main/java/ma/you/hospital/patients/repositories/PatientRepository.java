@@ -15,6 +15,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
             "OR LOWER(p.lastName) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Patient> search(String q, Pageable pageable);
 
-    Optional<Patient> findByUserId(Long userId);
 
 }

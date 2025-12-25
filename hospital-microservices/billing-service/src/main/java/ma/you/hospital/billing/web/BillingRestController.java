@@ -23,8 +23,10 @@ public class BillingRestController {
     }
 
     @GetMapping
-    public List<BillResponseDTO> getAllBills() {
-        return billingService.getAllBills();
+    public List<BillResponseDTO> getAllBills(
+            @RequestParam(required = false) String q
+    ) {
+        return billingService.getAllBills(q);
     }
 
     @GetMapping("/{id}")
